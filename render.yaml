@@ -1,0 +1,28 @@
+services:
+  # Backend — Docker Web Service
+  - type: web
+    name: rebrand-os-api
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ENVIRONMENT
+        value: production
+
+  # Frontend — Static Site
+  - type: web
+    name: rebrand-os-frontend
+    env: static
+    buildCommand: echo "No build needed"
+    staticPublishPath: ./frontend
+    plan: free
+    region: oregon
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
