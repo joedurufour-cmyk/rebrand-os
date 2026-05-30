@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# WeasyPrint OS dependencies
+# WeasyPrint + Rust-free build environment
 RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libpangoft2-1.0-0 \
@@ -12,11 +12,15 @@ RUN apt-get update && apt-get install -y \
     libopenjp2-7-dev \
     shared-mime-info \
     fonts-liberation \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# Install Python deps — wheels only, no Rust compilation
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --only-binary=:pydantic-core: -r requirements.txt || \
+    pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
