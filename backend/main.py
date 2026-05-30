@@ -32,13 +32,31 @@ async def serve_frontend():
     return {"service": "REBRAND.OS API v2", "health": "/api/health"}
 
 KIMI_BASE_URL = "https://api.moonshot.ai/v1"
-KIMI_MODEL = "kimi-k2"
+KIMI_MODELS = ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k", "kimi-k2", "kimi-latest"]
+KIMI_MODEL = "moonshot-v1-8k"  # most stable fallback
 
 def get_client():
     api_key = os.getenv("KIMI_API_KEY")
     if not api_key:
         raise HTTPException(status_code=500, detail="KIMI_API_KEY not configured")
     return openai.OpenAI(api_key=api_key, base_url=KIMI_BASE_URL)
+
+@app.get("/api/test-model")
+async def test_model():
+    """Test which Kimi model works"""
+    client = get_client()
+    results = {}
+    for model in ["moonshot-v1-8k", "moonshot-v1-32k", "kimi-k2", "kimi-latest"]:
+        try:
+            r = client.chat.completions.create(
+                model=model,
+                messages=[{"role":"user","content":"Say OK"}],
+                max_tokens=10
+            )
+            results[model] = "OK: " + r.choices[0].message.content
+        except Exception as e:
+            results[model] = "FAIL: " + str(e)[:100]
+    return results
 
 @app.get("/api/health")
 @app.get("/health")
