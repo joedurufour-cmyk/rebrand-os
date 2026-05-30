@@ -32,7 +32,7 @@ async def serve_frontend():
     return {"service": "REBRAND.OS API v2", "health": "/api/health"}
 
 KIMI_BASE_URL = "https://api.moonshot.ai/v1"
-KIMI_MODEL = "moonshot-v1-128k"
+KIMI_MODEL = "kimi-k2"
 
 def get_client():
     api_key = os.getenv("KIMI_API_KEY")
