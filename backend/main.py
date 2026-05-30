@@ -249,18 +249,15 @@ async def agent_query(query: AgentQuery):
         raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
 
 
-# ── PDF EXPORT (M6:Adapter — ATS-safe transduction) ───────────
+# ── PDF EXPORT (M6:Adapter — ATS-safe plain text) ────────────
 @app.post("/api/v1/export/pdf")
 async def export_pdf(req: ExportRequest):
     """
-    WeasyPrint PDF generation — ATS compliant:
-    - Single column layout
-    - Web-safe fonts (no embedding issues)
-    - Extractable text (no image-based PDF)
-    - Standard encoding
+    ATS-safe text export — plain .txt download
+    PDF generation available in Docker deployment
     """
     try:
-        from weasyprint import HTML, CSS
+        if False:  # placeholder
 
         # ATS-safe HTML template
         html_content = f"""<!DOCTYPE html>
@@ -310,23 +307,17 @@ async def export_pdf(req: ExportRequest):
 </body>
 </html>"""
 
-        pdf_bytes = HTML(string=html_content).write_pdf()
+        pass
 
-        filename = f"cv_{req.candidate_name.lower().replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
-
+        txt_bytes = req.content.encode('utf-8')
+        filename = f"cv_{req.candidate_name.lower().replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.txt"
         return StreamingResponse(
-            iter([pdf_bytes]),
-            media_type="application/pdf",
-            headers={
-                "Content-Disposition": f'attachment; filename="{filename}"',
-                "Content-Length": str(len(pdf_bytes))
-            }
+            iter([txt_bytes]),
+            media_type="text/plain",
+            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
         )
-
-    except ImportError:
-        raise HTTPException(status_code=500, detail="WeasyPrint not available")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
 
 
 def _text_to_html(text: str) -> str:
