@@ -10,7 +10,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
-import openai
+import anthropic
 import pathlib
 
 app = FastAPI(title="REBRAND.OS", version="2.0.0")
@@ -31,39 +31,33 @@ async def serve_frontend():
         return FileResponse(str(FRONTEND_PATH), media_type="text/html")
     return {"service": "REBRAND.OS API v2", "health": "/api/health"}
 
-KIMI_BASE_URL = "https://api.moonshot.ai/v1"
-KIMI_MODELS = ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k", "kimi-k2", "kimi-latest"]
-KIMI_MODEL = "moonshot-v1-8k"  # most stable fallback
+CLAUDE_MODEL = "claude-sonnet-4-20250514"
 
 def get_client():
-    api_key = os.getenv("KIMI_API_KEY")
+    api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
-        raise HTTPException(status_code=500, detail="KIMI_API_KEY not configured")
-    return openai.OpenAI(api_key=api_key, base_url=KIMI_BASE_URL)
+        raise HTTPException(status_code=500, detail="ANTHROPIC_API_KEY not configured")
+    return anthropic.Anthropic(api_key=api_key)
 
 @app.get("/api/test-model")
 async def test_model():
-    """Test which Kimi model works"""
     client = get_client()
-    results = {}
-    for model in ["moonshot-v1-8k", "moonshot-v1-32k", "kimi-k2", "kimi-latest"]:
-        try:
-            r = client.chat.completions.create(
-                model=model,
-                messages=[{"role":"user","content":"Say OK"}],
-                max_tokens=10
-            )
-            results[model] = "OK: " + r.choices[0].message.content
-        except Exception as e:
-            results[model] = "FAIL: " + str(e)[:100]
-    return results
+    try:
+        r = client.messages.create(
+            model=CLAUDE_MODEL,
+            messages=[{"role":"user","content":"Say OK in one word"}],
+            max_tokens=10
+        )
+        return {"status": "OK", "model": CLAUDE_MODEL, "reply": r.content[0].text}
+    except Exception as e:
+        return {"status": "FAIL", "error": str(e)}
 
 @app.get("/api/health")
 @app.get("/health")
 async def health():
     return {
         "status": "ok", "service": "REBRAND.OS", "version": "2.0.0",
-        "kimi_configured": bool(os.getenv("KIMI_API_KEY")),
+        "claude_configured": bool(os.getenv("ANTHROPIC_API_KEY")),
         "pipeline": "KB1→KB7 | INGESTA→SCORING→OUTPUT"
     }
 
@@ -272,16 +266,14 @@ async def run_pipeline(data: ProfileInput):
     prompt = build_prompt(data.mode, data.cv_text, data.job_description, data.target_role, data.target_market)
 
     try:
-        response = client.chat.completions.create(
-            model=KIMI_MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_BASE},
-                {"role": "user", "content": prompt}
-            ],
+        response = client.messages.create(
+            model=CLAUDE_MODEL,
+            system=SYSTEM_BASE,
+            messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=6000,
         )
-        raw = response.choices[0].message.content
+        raw = response.content[0].text
 
         # Parse JSON if expected
         parsed = None
@@ -296,7 +288,7 @@ async def run_pipeline(data: ProfileInput):
             "status": "PASS",
             "mode": data.mode,
             "data": {"content": raw, "structured": parsed},
-            "meta": {"model": KIMI_MODEL, "tokens": response.usage.total_tokens},
+            "meta": {"model": KIMI_MODEL, "tokens": response.usage.input_tokens + response.usage.output_tokens},
             "transducers": [
                 {"action": "download", "label": "Descargar TXT", "endpoint": "/api/v1/export"},
                 {"action": "copy", "label": "Copiar"}
@@ -330,16 +322,20 @@ async def coach(data: ChatMessage):
     messages.append({"role": "user", "content": data.message})
 
     try:
-        response = client.chat.completions.create(
-            model=KIMI_MODEL,
-            messages=messages,
+        # Convert to Anthropic format
+        sys_msg = messages[0]["content"] if messages[0]["role"] == "system" else SYSTEM_BASE
+        user_msgs = [m for m in messages if m["role"] != "system"]
+        response = client.messages.create(
+            model=CLAUDE_MODEL,
+            system=sys_msg,
+            messages=user_msgs,
             temperature=0.4,
             max_tokens=3000,
         )
         return {
             "status": "PASS",
-            "reply": response.choices[0].message.content,
-            "tokens": response.usage.total_tokens
+            "reply": response.content[0].text,
+            "tokens": response.usage.input_tokens + response.usage.output_tokens
         }
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Error: {str(e)}")

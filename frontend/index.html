@@ -296,9 +296,9 @@ async function checkApi() {
   try {
     var r = await fetch(API + '/api/health');
     var d = await r.json();
-    var ok = d.kimi_configured;
+    var ok = d.claude_configured;
     document.getElementById('dot').className = 'dot' + (ok ? ' online' : '');
-    document.getElementById('kstatus').textContent = ok ? 'Kimi K2.6 ready' : 'sin API key';
+    document.getElementById('kstatus').textContent = ok ? 'Claude ready' : 'sin API key';
   } catch(e) {
     document.getElementById('kstatus').textContent = 'offline';
   }
