@@ -25,12 +25,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── OPENAI CLIENT ─────────────────────────────────────────────
+# ── KIMI K2.6 CLIENT (OpenAI-compatible) ─────────────────────
+KIMI_BASE_URL = "https://api.moonshot.ai/v1"
+KIMI_MODEL = "kimi-k2.6"
+
 def get_openai_client():
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("KIMI_API_KEY")
     if not api_key:
-        raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
-    return openai.OpenAI(api_key=api_key)
+        raise HTTPException(status_code=500, detail="KIMI_API_KEY not configured")
+    return openai.OpenAI(api_key=api_key, base_url=KIMI_BASE_URL)
 
 # ── PERA PROMPT INJECTOR (M2:Encoder + M3:Compressor) ─────────
 SYSTEM_PROMPT = """You are REBRAND.OS — a deterministic ATS optimization engine.
@@ -151,7 +154,7 @@ async def health():
         "status": "ok",
         "service": "REBRAND.OS",
         "version": "1.0.0",
-        "openai_configured": bool(os.getenv("OPENAI_API_KEY")),
+        "kimi_configured": bool(os.getenv("KIMI_API_KEY")),
         "pipeline": "PERA-v1 M1→M7"
     }
 
@@ -194,10 +197,11 @@ async def agent_query(query: AgentQuery):
     # M7: Execute
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model=KIMI_MODEL,
             messages=messages,
-            temperature=0.3,  # Low temp for determinism
-            max_tokens=4000,
+            temperature=0.6,  # Kimi recommended for non-thinking mode
+            max_tokens=8000,
+            extra_body={"thinking": {"type": "disabled"}}  # disable thinking for fast ATS tasks
         )
         raw_content = response.choices[0].message.content
 
@@ -234,14 +238,14 @@ async def agent_query(query: AgentQuery):
                 }
             ],
             "meta": {
-                "model": "gpt-4o",
+                "model": KIMI_MODEL,
                 "tokens_used": response.usage.total_tokens,
                 "pipeline": "PERA-v1"
             }
         }
         return result
 
-    except openai.OpenAIError as e:
+    except openai.APIError as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
 
 

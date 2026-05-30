@@ -379,8 +379,8 @@ async function checkApi() {
     var r = await fetch(API_BASE + '/api/health');
     var d = await r.json();
     document.getElementById('statusDot').style.background = 'var(--acc2)';
-    document.getElementById('apiStatus').textContent = d.openai_configured ? 'LLM ready' : 'no LLM key';
-    if (!d.openai_configured) {
+    document.getElementById('apiStatus').textContent = d.kimi_configured ? 'Kimi K2.6 ready' : 'no Kimi key';
+    if (!d.kimi_configured) {
       document.getElementById('apiStatus').style.color = 'var(--acc4)';
     }
   } catch(e) {

@@ -9,7 +9,7 @@ services:
     region: oregon
     healthCheckPath: /health
     envVars:
-      - key: OPENAI_API_KEY
+      - key: KIMI_API_KEY
         sync: false
       - key: ENVIRONMENT
         value: production
