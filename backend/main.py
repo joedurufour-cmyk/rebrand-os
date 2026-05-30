@@ -29,7 +29,7 @@ app.add_middleware(
 
 # ── KIMI K2.6 CLIENT (OpenAI-compatible) ─────────────────────
 KIMI_BASE_URL = "https://api.moonshot.ai/v1"
-KIMI_MODEL = "kimi-latest"
+KIMI_MODEL = "moonshot-v1-128k"
 
 def get_openai_client():
     api_key = os.getenv("KIMI_API_KEY")
@@ -210,9 +210,8 @@ async def agent_query(query: AgentQuery):
         response = client.chat.completions.create(
             model=KIMI_MODEL,
             messages=messages,
-            temperature=0.6,  # Kimi recommended for non-thinking mode
-            max_tokens=8000,
-            extra_body={"thinking": {"type": "disabled"}}  # disable thinking for fast ATS tasks
+            temperature=0.6,
+            max_tokens=4000
         )
         raw_content = response.choices[0].message.content
 
