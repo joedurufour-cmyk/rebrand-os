@@ -9,6 +9,8 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
+import pathlib
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from pydantic import BaseModel
@@ -145,6 +147,15 @@ class ExportRequest(BaseModel):
     content: str
     title: str = "Optimized CV"
     candidate_name: str = "Candidate"
+
+# ── SERVE FRONTEND ───────────────────────────────────────────
+FRONTEND_PATH = pathlib.Path(__file__).parent.parent / "frontend" / "index.html"  # /app/frontend/index.html in Docker
+
+@app.get("/")
+async def serve_frontend():
+    if FRONTEND_PATH.exists():
+        return FileResponse(str(FRONTEND_PATH), media_type="text/html")
+    return {"message": "REBRAND.OS API", "docs": "/docs", "health": "/api/health"}
 
 # ── HEALTH ────────────────────────────────────────────────────
 @app.get("/health")
