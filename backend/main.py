@@ -29,7 +29,7 @@ app.add_middleware(
 
 # ── KIMI K2.6 CLIENT (OpenAI-compatible) ─────────────────────
 KIMI_BASE_URL = "https://api.moonshot.ai/v1"
-KIMI_MODEL = "kimi-k2.6"
+KIMI_MODEL = "kimi-latest"
 
 def get_openai_client():
     api_key = os.getenv("KIMI_API_KEY")
@@ -256,7 +256,7 @@ async def agent_query(query: AgentQuery):
         }
         return result
 
-    except openai.APIError as e:
+    except Exception as e:
         raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
 
 
