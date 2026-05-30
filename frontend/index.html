@@ -1,588 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>REBRAND.OS — ATS CV Optimizer</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<title>REBRAND.OS — Motor de Rebranding Profesional</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#07070a;--s1:#0e0e14;--s2:#141420;--s3:#1a1a28;
+  --bg:#07070a;--s1:#0d0d14;--s2:#131320;--s3:#1a1a2a;
   --border:#1e1e30;--border2:#2a2a40;
-  --text:#f0f0fa;--text2:#6060a0;--text3:#303050;
-  --acc:#e0365c;--acc2:#36e08a;--acc3:#3670e0;--acc4:#e0a036;
-  --kimi:#a855f7;
+  --text:#f0f0fa;--text2:#6060a0;--text3:#303058;
+  --acc:#e0365c;--acc2:#36e08a;--acc3:#3670e0;--acc4:#e0a036;--kimi:#a855f7;
 }
-html,body{height:100%;overflow:hidden;font-family:'Syne',sans-serif;background:var(--bg);color:var(--text)}
+html,body{height:100%;font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
 
-/* ── LAYOUT ── */
-.shell{display:grid;grid-template-rows:52px 1fr;height:100vh}
-.main{display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
-@media(max-width:768px){.main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}}
-
-/* ── TOPBAR ── */
-.topbar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;
-  background:rgba(7,7,10,0.95);
-  border-bottom:1px solid var(--border2);
-  backdrop-filter:blur(12px);
-}
-.brand{display:flex;align-items:center;gap:10px}
-.brand-name{font-size:16px;font-weight:800;letter-spacing:-.5px}
-.brand-tag{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--acc);border:1px solid var(--acc);padding:2px 7px;border-radius:4px}
-.topbar-right{display:flex;align-items:center;gap:12px}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--acc2);animation:pulse 2s infinite}
+/* TOPBAR */
+.topbar{height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(7,7,10,.96);border-bottom:1px solid var(--border2);position:fixed;top:0;left:0;right:0;z-index:100}
+.brand{font-size:16px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+.brand-tag{font-size:9px;border:1px solid var(--acc);color:var(--acc);padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:1px}
+.kimi-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--acc);animation:pulse 2s infinite}
+.dot.online{background:var(--acc2)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.api-status{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace}
-.mode-tabs{display:flex;gap:2px}
-.mode-tab{padding:6px 14px;font-size:11px;font-weight:700;border:none;border-radius:6px;cursor:pointer;background:var(--s2);color:var(--text2);font-family:'Syne',sans-serif;transition:all .15s;letter-spacing:.5px}
-.mode-tab.active{background:var(--acc3);color:#fff}
 
-/* ── LEFT PANEL — INPUTS ── */
-.panel-left{
-  display:flex;flex-direction:column;
-  border-right:1px solid var(--border2);
-  overflow:hidden;
-}
-.panel-header{
-  padding:14px 16px;
-  background:var(--s1);border-bottom:1px solid var(--border);
-  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);
-  display:flex;justify-content:space-between;align-items:center;
-  flex-shrink:0;
-}
-.panel-header span{color:var(--acc4)}
-.inputs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+/* BOTTOM NAV */
+.nav{position:fixed;bottom:0;left:0;right:0;height:60px;display:flex;background:rgba(7,7,10,.97);border-top:1px solid var(--border2);z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;color:var(--text3);cursor:pointer;font-family:'Syne',sans-serif;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;transition:color .15s}
+.nav-btn .ico{font-size:19px}
+.nav-btn.active{color:var(--acc)}
+.nav-btn.active.n1{color:var(--acc3)}
+.nav-btn.active.n2{color:var(--acc2)}
+.nav-btn.active.n3{color:var(--kimi)}
+.nav-btn.active.n4{color:var(--acc4)}
+.nav-btn.active.n5{color:var(--acc)}
 
-.input-group{}
+/* MAIN */
+.main{position:fixed;top:52px;bottom:60px;left:0;right:0;overflow:hidden}
+.screen{display:none;height:100%;overflow-y:auto;padding:16px;padding-bottom:20px}
+.screen.active{display:block}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.card-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.card.accent-r{border-left:2px solid var(--acc)}
+.card.accent-g{border-left:2px solid var(--acc2)}
+.card.accent-b{border-left:2px solid var(--acc3)}
+.card.accent-p{border-left:2px solid var(--kimi)}
+.card.accent-o{border-left:2px solid var(--acc4)}
+
+/* INPUTS */
+textarea,input,select{width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:11px 13px;color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;outline:none;resize:none;transition:border-color .2s}
+textarea:focus,input:focus{border-color:var(--acc3)}
+textarea{line-height:1.6}
+select{appearance:none;font-family:'Syne',sans-serif;font-size:13px}
 .input-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between}
-.input-label .hint{color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;font-size:10px}
-textarea{
-  width:100%;background:var(--s2);border:1px solid var(--border2);border-radius:10px;
-  padding:12px;color:var(--text);font-size:13px;font-family:'JetBrains Mono',monospace;
-  resize:none;outline:none;line-height:1.6;transition:border-color .2s;
-}
-textarea:focus{border-color:var(--acc3)}
-#cvInput{height:220px}
-#jdInput{height:160px}
+.input-label span{color:var(--text3);font-weight:400;font-size:10px;text-transform:none;letter-spacing:0}
 
-/* ── ACTION BUTTONS ── */
-.actions{padding:12px 16px;border-top:1px solid var(--border);background:var(--s1);flex-shrink:0}
-.btn-row{display:flex;gap:8px;flex-wrap:wrap}
-.btn{
-  padding:11px 16px;border:none;border-radius:9px;
-  font-size:12px;font-weight:700;cursor:pointer;
-  font-family:'Syne',sans-serif;letter-spacing:.5px;
-  display:flex;align-items:center;gap:6px;transition:all .15s;
-}
+/* BUTTONS */
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-size:13px;font-weight:700;letter-spacing:.5px;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;margin-top:10px}
 .btn:active{transform:scale(.97)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.btn-primary{background:var(--acc);color:#fff;flex:1}
-.btn-primary:hover:not(:disabled){background:#f0405f}
-.btn-secondary{background:var(--acc3);color:#fff;flex:1}
-.btn-secondary:hover:not(:disabled){background:#2860d0}
-.btn-ghost{background:var(--s3);border:1px solid var(--border2);color:var(--text2)}
-.btn-ghost:hover{border-color:var(--acc);color:var(--acc)}
-.btn-green{background:var(--s3);border:1px solid var(--acc2);color:var(--acc2)}
-.btn-green:hover{background:rgba(54,224,138,.1)}
+.btn-primary{background:var(--acc);color:#fff}
+.btn-blue{background:var(--acc3);color:#fff}
+.btn-green{background:var(--acc2);color:#000}
 .btn-kimi{background:var(--kimi);color:#fff}
-.btn-kimi:hover{background:#9333ea}
+.btn-orange{background:var(--acc4);color:#000}
+.btn-ghost{background:var(--s3);border:1px solid var(--border2);color:var(--text2)}
+.btn-sm{padding:8px 14px;font-size:11px;border-radius:8px;margin:0;width:auto}
 
-/* ── RIGHT PANEL — OUTPUT CANVAS ── */
-.panel-right{display:flex;flex-direction:column;overflow:hidden}
-.canvas-header{
-  padding:14px 16px;background:var(--s1);border-bottom:1px solid var(--border);
-  display:flex;justify-content:space-between;align-items:center;
-  flex-shrink:0;
-}
-.canvas-title{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2)}
-.canvas-actions{display:flex;gap:6px}
-.canvas-btn{
-  padding:6px 12px;font-size:10px;font-weight:700;
-  background:var(--s2);border:1px solid var(--border2);color:var(--text2);
-  border-radius:7px;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s;
-}
-.canvas-btn:hover{border-color:var(--acc2);color:var(--acc2)}
-.canvas-btn.accent{border-color:var(--acc);color:var(--acc)}
+/* OUTPUT */
+.output-block{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:13px;font-size:12px;line-height:1.7;font-family:'JetBrains Mono',monospace;white-space:pre-wrap;word-break:break-word;color:var(--text);margin:10px 0}
+.output-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.act-btn{padding:8px 14px;font-size:11px;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-family:'Syne',sans-serif}
+.act-copy{background:var(--s3);border:1px solid var(--acc3);color:var(--acc3)}
+.act-dl{background:var(--s3);border:1px solid var(--acc2);color:var(--acc2)}
 
-/* ── OUTPUT AREA ── */
-.output-area{flex:1;overflow-y:auto;padding:16px}
+/* SCORE WIDGET */
+.score-ring{display:flex;align-items:center;gap:14px;padding:12px;background:var(--s2);border-radius:10px;margin-bottom:10px}
+.score-num{font-size:36px;font-weight:800;min-width:60px}
+.score-num.apply{color:var(--acc2)}
+.score-num.explore{color:var(--acc4)}
+.score-num.skip{color:var(--acc)}
+.score-info{flex:1}
+.score-decision{font-size:13px;font-weight:700;margin-bottom:4px}
+.score-bar-wrap{background:var(--s3);border-radius:3px;height:5px;overflow:hidden}
+.score-bar{height:100%;border-radius:3px;transition:width .8s}
+.score-bar.apply{background:var(--acc2)}
+.score-bar.explore{background:var(--acc4)}
+.score-bar.skip{background:var(--acc)}
 
-/* ATS Score Card */
-.score-card{
-  background:var(--s2);border:1px solid var(--border2);border-radius:12px;
-  padding:16px;margin-bottom:14px;
-}
-.score-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.score-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2)}
-.score-value{font-size:28px;font-weight:800;color:var(--acc2)}
-.score-bar-wrap{background:var(--s3);border-radius:4px;height:6px;overflow:hidden;margin-bottom:10px}
-.score-bar{height:100%;background:linear-gradient(90deg,var(--acc3),var(--acc2));border-radius:4px;transition:width .8s ease}
-.score-meta{font-size:11px;color:var(--text2);display:flex;gap:16px}
-.score-meta span{display:flex;align-items:center;gap:4px}
+/* CHIPS */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.chip.match{background:rgba(54,224,138,.1);border:1px solid var(--acc2);color:var(--acc2)}
+.chip.gap{background:rgba(224,54,92,.1);border:1px solid var(--acc);color:var(--acc)}
+.chip.neutral{background:var(--s3);border:1px solid var(--border2);color:var(--text2)}
 
-/* Keyword chips */
-.kw-section{margin-bottom:14px}
-.kw-title{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);margin-bottom:7px}
-.kw-chips{display:flex;flex-wrap:wrap;gap:5px}
-.kw-chip{padding:4px 10px;border-radius:14px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
-.kw-chip.match{background:rgba(54,224,138,.12);border:1px solid var(--acc2);color:var(--acc2)}
-.kw-chip.gap{background:rgba(224,54,92,.12);border:1px solid var(--acc);color:var(--acc)}
-.kw-chip.neutral{background:var(--s3);border:1px solid var(--border2);color:var(--text2)}
+/* PATCH CARD */
+.patch{background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:12px;margin-bottom:8px}
+.patch-section{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--acc3);margin-bottom:6px}
+.patch-original{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:6px;padding:6px;background:var(--s3);border-radius:5px;text-decoration:line-through}
+.patch-new{font-size:12px;color:var(--acc2);font-family:'JetBrains Mono',monospace;padding:6px;background:rgba(54,224,138,.05);border-radius:5px}
+.patch-tipo{font-size:9px;color:var(--text3);margin-top:4px}
 
-/* Recommendations */
-.rec-list{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
-.rec-item{
-  background:var(--s2);border-left:2px solid var(--acc3);
-  padding:10px 12px;border-radius:0 8px 8px 0;
-  font-size:12px;color:var(--text2);line-height:1.5;
-}
-.rec-item strong{color:var(--acc3)}
+/* CHAT */
+.chat-area{display:flex;flex-direction:column;gap:10px;padding-bottom:10px}
+.bubble{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5}
+.bubble.user{background:var(--acc3);color:#fff;align-self:flex-end;border-radius:12px 12px 2px 12px}
+.bubble.ai{background:var(--s2);border:1px solid var(--border2);color:var(--text);align-self:flex-start;border-radius:12px 12px 12px 2px}
+.bubble.ai .tag{font-size:9px;color:var(--kimi);font-weight:700;letter-spacing:1px;display:block;margin-bottom:5px}
+.chat-input-row{position:sticky;bottom:0;background:var(--bg);padding:10px 0 0;display:flex;gap:8px}
+.chat-inp{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:10px 13px;color:var(--text);font-size:13px;font-family:'Syne',sans-serif;outline:none}
+.chat-inp:focus{border-color:var(--kimi)}
+.chat-send{padding:10px 16px;background:var(--kimi);border:none;border-radius:9px;color:#fff;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;white-space:nowrap}
 
-/* Text output */
-.text-output{
-  background:var(--s2);border:1px solid var(--border2);border-radius:10px;
-  padding:14px;font-size:13px;font-family:'JetBrains Mono',monospace;
-  line-height:1.7;color:var(--text);white-space:pre-wrap;word-break:break-word;
-}
+/* FREELANCE */
+.fl-card{background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:11px;margin-bottom:8px}
+.fl-title{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;justify-content:space-between}
+.fl-fit{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.fl-fit.high{background:rgba(54,224,138,.1);color:var(--acc2)}
+.fl-fit.med{background:rgba(224,160,54,.1);color:var(--acc4)}
+.fl-fit.low{background:rgba(224,54,92,.1);color:var(--acc)}
+.fl-desc{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace}
 
-/* Chat */
-.chat-area{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
-.chat-bubble{max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5}
-.chat-bubble.user{background:var(--acc3);color:#fff;align-self:flex-end;border-radius:12px 12px 2px 12px}
-.chat-bubble.ai{background:var(--s2);border:1px solid var(--border2);color:var(--text);align-self:flex-start;border-radius:12px 12px 12px 2px}
-.chat-bubble.ai .tag{font-size:9px;color:var(--kimi);font-weight:700;letter-spacing:1px;margin-bottom:4px;display:block}
-.chat-input-area{padding:12px 16px;border-top:1px solid var(--border);background:var(--s1);flex-shrink:0;display:flex;gap:8px}
-.chat-input{flex:1;background:var(--s2);border:1px solid var(--border2);border-radius:9px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'Syne',sans-serif;outline:none}
-.chat-input:focus{border-color:var(--kimi)}
-.chat-send{padding:10px 16px;background:var(--kimi);border:none;border-radius:9px;color:#fff;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px}
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty .ico{font-size:44px;opacity:.3;display:block;margin-bottom:12px}
+.empty p{font-size:13px;line-height:1.6}
 
-/* Empty state */
-.empty-state{
-  height:100%;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  color:var(--text3);text-align:center;padding:20px;
-}
-.empty-icon{font-size:48px;margin-bottom:12px;opacity:.4}
-.empty-title{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text2)}
-.empty-sub{font-size:12px;line-height:1.6;font-family:'JetBrains Mono',monospace}
+/* SPINNER */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid transparent;border-top-color:currentColor;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* Loading */
-.loading-overlay{
-  position:absolute;inset:0;background:rgba(7,7,10,.85);
-  display:flex;align-items:center;justify-content:center;
-  border-radius:12px;backdrop-filter:blur(4px);
-  z-index:10;flex-direction:column;gap:12px;
-}
-.spinner{width:28px;height:28px;border:3px solid var(--border2);border-top-color:var(--acc3);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:11px;color:var(--text2);font-family:'JetBrains Mono',monospace}
-
-/* Toast */
-.toast{
-  position:fixed;bottom:24px;left:50%;
-  transform:translateX(-50%) translateY(20px);
-  background:var(--s2);border:1px solid var(--border2);
-  color:var(--text);padding:10px 22px;border-radius:10px;
-  font-size:13px;font-weight:700;z-index:999;opacity:0;transition:all .25s;pointer-events:none;
-}
+/* TOAST */
+.toast{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:all .25s;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
-/* Section dividers */
-.section-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin:12px 0 6px}
+/* SECTION HEADERS */
+.sh{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
 </style>
 </head>
 <body>
-<div class="shell">
 
-<!-- TOPBAR -->
 <div class="topbar">
-  <div class="brand">
-    <div class="brand-name">REBRAND.OS</div>
-    <div class="brand-tag">ATS ENGINE</div>
-  </div>
-  <div class="topbar-right">
-    <div class="mode-tabs">
-      <button class="mode-tab active" onclick="setMode('analyze')">Analyze</button>
-      <button class="mode-tab" onclick="setMode('rewrite')">Rewrite</button>
-      <button class="mode-tab" onclick="setMode('summary')">Summary</button>
-      <button class="mode-tab" onclick="setMode('chat')">Coach</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px">
-      <div class="status-dot" id="statusDot" style="background:var(--acc)"></div>
-      <div class="api-status" id="apiStatus">connecting...</div>
-    </div>
-  </div>
+  <div class="brand">REBRAND.OS <span class="brand-tag">KB1→KB7</span></div>
+  <div class="kimi-status"><div class="dot" id="dot"></div><span id="kstatus">conectando...</span></div>
 </div>
 
-<!-- MAIN SPLIT -->
 <div class="main">
 
-  <!-- LEFT: INPUTS -->
-  <div class="panel-left">
-    <div class="panel-header">
-      Input Canvas
-      <span id="modeLabel">MODE: ANALYZE</span>
+  <!-- ═══ SCREEN 1: PIPELINE COMPLETO ═══ -->
+  <div class="screen active" id="s-pipeline">
+
+    <div class="card accent-b">
+      <div class="card-title">TU CV / PERFIL</div>
+      <div class="input-label">Texto completo <span>Pega CV, LinkedIn, o describe tu experiencia</span></div>
+      <textarea id="cvText" rows="8" placeholder="Pega aquí tu CV completo, perfil de LinkedIn, o describe tu experiencia profesional...
+
+Ejemplo:
+Juan García
+Gerente de Operaciones | 8 años experiencia
+Empresa XYZ 2018-2024
+- Reduje costos operativos en 25%
+- Lideré equipo de 15 personas
+Educación: Ingeniería Industrial, UTP 2015"></textarea>
     </div>
-    <div class="inputs">
-      <div class="input-group">
-        <div class="input-label">
-          Your CV / Resume
-          <span class="hint">Paste full text — no files</span>
-        </div>
-        <textarea id="cvInput" placeholder="Paste your full CV/resume text here...
 
-John Smith
-john@email.com | LinkedIn | New York, NY
+    <div class="card accent-r">
+      <div class="card-title">PUESTO TARGET <span style="color:var(--text3);font-weight:400">(opcional pero recomendado)</span></div>
+      <div class="input-label">Job Description <span>Pega la descripción del puesto</span></div>
+      <textarea id="jdText" rows="5" placeholder="Pega la descripción del trabajo aquí...
 
-PROFESSIONAL SUMMARY
-5+ years software engineer...
-
-EXPERIENCE
-Senior Engineer | Company | 2021-Present
-- Led development of...
-
-SKILLS
-Python, AWS, React, SQL..."></textarea>
-      </div>
-
-      <div class="input-group">
-        <div class="input-label">
-          Target Job Description
-          <span class="hint">Copy JD from job posting</span>
-        </div>
-        <textarea id="jdInput" placeholder="Paste the job description here...
-
-We are looking for a Senior Software Engineer with 5+ years experience in Python, AWS cloud infrastructure, and React. The ideal candidate will lead cross-functional teams..."></textarea>
-      </div>
-
-      <div id="chatModeHint" style="display:none">
-        <div class="input-label">Coach Mode Active</div>
-        <div style="font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;background:var(--s2);padding:10px;border-radius:8px">
-          Your CV and JD are loaded as context. Use the chat below to ask specific questions about optimization.
-        </div>
+Ejemplo:
+Gerente de Cadena de Suministro
+- 5+ años en supply chain management
+- Experiencia con SAP, Power BI
+- Manejo de equipos..."></textarea>
+      <div style="margin-top:8px">
+        <div class="input-label">Mercado target</div>
+        <select id="market">
+          <option value="remote">Remoto Internacional</option>
+          <option value="latam">LATAM</option>
+          <option value="usa">USA</option>
+          <option value="panama">Panamá</option>
+          <option value="europe">Europa</option>
+        </select>
       </div>
     </div>
-    <div class="actions">
-      <div class="btn-row">
-        <button class="btn btn-primary" id="mainBtn" onclick="runPipeline()">
-          <span id="btnSpinner" class="spinner" style="display:none;width:14px;height:14px;border-width:2px"></span>
-          <span id="btnText">⚗️ Analyze CV</span>
-        </button>
-        <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+
+    <button class="btn btn-primary" id="pipelineBtn" onclick="runPipeline()">
+      <span id="pSpin" class="spin" style="display:none"></span>
+      <span id="pTxt">⚗️ Ejecutar Pipeline Completo</span>
+    </button>
+
+    <div id="pipelineOutput"></div>
+  </div>
+
+  <!-- ═══ SCREEN 2: CV OUTPUTS ═══ -->
+  <div class="screen" id="s-cv">
+    <div class="card accent-g">
+      <div class="card-title">GENERAR CV</div>
+      <div class="input-label">Versión a generar</div>
+      <select id="cvMode">
+        <option value="cv_ats">CV Versión ATS (parser-safe)</option>
+        <option value="cv_recruiter">CV Versión Recruiter (6-8s scan)</option>
+        <option value="linkedin">Perfil LinkedIn Completo</option>
+      </select>
+    </div>
+
+    <div style="background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:11px;margin-bottom:12px;font-size:11px;color:var(--text2)">
+      Usa el CV y JD que cargaste en Pipeline.<br>
+      <span style="color:var(--text3)">Si no cargaste datos, ve a Pipeline primero.</span>
+    </div>
+
+    <button class="btn btn-green" id="cvBtn" onclick="runCV()">
+      <span id="cvSpin" class="spin" style="display:none"></span>
+      <span id="cvTxt">📄 Generar CV</span>
+    </button>
+
+    <div id="cvOutput"></div>
+  </div>
+
+  <!-- ═══ SCREEN 3: COACH ═══ -->
+  <div class="screen" id="s-coach">
+    <div class="card accent-p" style="margin-bottom:8px">
+      <div class="card-title">COACH PERA <span style="color:var(--kimi)">KB1→KB7</span></div>
+      <div style="font-size:11px;color:var(--text2)">Coach especializado en rebranding, ATS, entrevistas y mercado freelance. Contexto del CV cargado automáticamente.</div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+      <div class="empty">
+        <span class="ico">🧠</span>
+        <p>Pregúntame sobre tu CV, cómo mejorar secciones, preparar entrevistas, o estrategia de búsqueda.</p>
       </div>
+    </div>
+
+    <div class="chat-input-row">
+      <input class="chat-inp" id="chatInp" placeholder="¿Cómo mejoro mi summary? ¿Qué keywords me faltan?..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+      <button class="chat-send" onclick="sendChat()">Enviar</button>
     </div>
   </div>
 
-  <!-- RIGHT: OUTPUT CANVAS -->
-  <div class="panel-right">
-    <div class="canvas-header">
-      <div class="canvas-title" id="canvasTitle">Output Canvas</div>
-      <div class="canvas-actions">
-        <button class="canvas-btn" id="copyBtn" onclick="copyOutput()" style="display:none">Copy</button>
-        <button class="canvas-btn accent" id="pdfBtn" onclick="exportPDF()" style="display:none">⬇️ PDF</button>
-      </div>
+  <!-- ═══ SCREEN 4: FREELANCE ═══ -->
+  <div class="screen" id="s-freelance">
+    <div class="card accent-o">
+      <div class="card-title">ANÁLISIS FREELANCE <span style="color:var(--acc4)">KB5</span></div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Plataformas, servicios ofrecibles, precios estimados, detección de scams y template de propuesta — basado en tu CV real.</div>
     </div>
 
-    <!-- ANALYZE VIEW -->
-    <div class="output-area" id="viewAnalyze" style="display:none">
-      <div class="score-card">
-        <div class="score-header">
-          <div class="score-label">ATS Score — Before</div>
-          <div class="score-value" id="scoreBefore">—</div>
-        </div>
-        <div class="score-bar-wrap"><div class="score-bar" id="scoreBarBefore" style="width:0%"></div></div>
-        <div class="score-meta">
-          <span>✅ <span id="matchCount">0</span> matches</span>
-          <span>❌ <span id="gapCount">0</span> gaps</span>
-          <span>📈 Est. after: <span id="scoreAfter">—</span></span>
-        </div>
-      </div>
+    <button class="btn btn-orange" id="flBtn" onclick="runFreelance()">
+      <span id="flSpin" class="spin" style="display:none"></span>
+      <span id="flTxt">🌐 Analizar Oportunidades Freelance</span>
+    </button>
 
-      <div class="kw-section" id="kwMatches">
-        <div class="kw-title">Keyword Matches</div>
-        <div class="kw-chips" id="matchChips"></div>
-      </div>
-
-      <div class="kw-section" id="kwGaps">
-        <div class="kw-title">Keyword Gaps</div>
-        <div class="kw-chips" id="gapChips"></div>
-      </div>
-
-      <div class="section-label">Recommendations</div>
-      <div class="rec-list" id="recList"></div>
-
-      <div class="section-label">Section Analysis</div>
-      <div id="sectionAnalysis"></div>
-    </div>
-
-    <!-- REWRITE / SUMMARY VIEW -->
-    <div class="output-area" id="viewText" style="display:none">
-      <div class="text-output" id="textOutput"></div>
-    </div>
-
-    <!-- CHAT VIEW -->
-    <div id="viewChat" style="display:none;flex-direction:column;height:100%">
-      <div class="chat-area" id="chatArea">
-        <div class="empty-state">
-          <div class="empty-icon">🧠</div>
-          <div class="empty-title">Coach Mode</div>
-          <div class="empty-sub">Load your CV + JD above, then ask me anything about optimization.</div>
-        </div>
-      </div>
-      <div class="chat-input-area">
-        <input class="chat-input" id="chatInput" placeholder="Ask: How do I improve my summary? What keywords am I missing?" onkeydown="if(event.key==='Enter')sendChat()">
-        <button class="chat-send" onclick="sendChat()">Send</button>
-      </div>
-    </div>
-
-    <!-- EMPTY STATE -->
-    <div class="output-area" id="viewEmpty" style="display:flex;align-items:center;justify-content:center;height:100%">
-      <div class="empty-state">
-        <div class="empty-icon">⚗️</div>
-        <div class="empty-title">REBRAND.OS Ready</div>
-        <div class="empty-sub">
-          Paste your CV + Job Description<br>
-          Select analysis mode → Execute<br><br>
-          <span style="color:var(--acc3)">P_entailment ≥ 0.90</span><br>
-          <span style="color:var(--text3)">No hallucination · Factual anchoring</span>
-        </div>
-      </div>
-    </div>
-
+    <div id="flOutput"></div>
   </div>
-</div>
-</div>
+
+  <!-- ═══ SCREEN 5: SCORING ═══ -->
+  <div class="screen" id="s-score">
+    <div class="card accent-r">
+      <div class="card-title">SCORING RÁPIDO <span style="color:var(--acc)">KB6</span></div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">APPLY ≥75 | EXPLORE 50-74 | SKIP &lt;50<br>Basado en fit real CV vs JD.</div>
+    </div>
+
+    <button class="btn btn-primary" id="scoreBtn" onclick="runScore()">
+      <span id="scoreSpin" class="spin" style="display:none"></span>
+      <span id="scoreTxt">🎯 Calcular Fit Score</span>
+    </button>
+
+    <div id="scoreOutput"></div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nav-btn n1 active" onclick="show('s-pipeline',this)"><span class="ico">⚗️</span>Pipeline</button>
+  <button class="nav-btn n2" onclick="show('s-cv',this)"><span class="ico">📄</span>CV</button>
+  <button class="nav-btn n3" onclick="show('s-coach',this)"><span class="ico">🧠</span>Coach</button>
+  <button class="nav-btn n4" onclick="show('s-freelance',this)"><span class="ico">🌐</span>Freelance</button>
+  <button class="nav-btn n5" onclick="show('s-score',this)"><span class="ico">🎯</span>Score</button>
+</nav>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
-// ZERO credentials in frontend — all calls go to backend
-var API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-  ? 'http://localhost:8000'
-  : 'https://rebrand-os-api-m8b8.onrender.com';  // Render backend
-
-var currentMode = 'analyze';
-var lastResult = null;
+var API = 'https://rebrand-os-api-m8b8.onrender.com';
 var chatHistory = [];
 
-// ── INIT ──────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  checkApi();
-});
+// INIT
+document.addEventListener('DOMContentLoaded', function() { checkApi(); });
 
 async function checkApi() {
   try {
-    var r = await fetch(API_BASE + '/api/health');
+    var r = await fetch(API + '/api/health');
     var d = await r.json();
-    document.getElementById('statusDot').style.background = 'var(--acc2)';
-    document.getElementById('apiStatus').textContent = d.kimi_configured ? 'Kimi K2.6 ready' : 'no Kimi key';
-    if (!d.kimi_configured) {
-      document.getElementById('apiStatus').style.color = 'var(--acc4)';
-    }
+    var ok = d.kimi_configured;
+    document.getElementById('dot').className = 'dot' + (ok ? ' online' : '');
+    document.getElementById('kstatus').textContent = ok ? 'Kimi K2.6 ready' : 'sin API key';
   } catch(e) {
-    document.getElementById('apiStatus').textContent = 'backend offline';
+    document.getElementById('kstatus').textContent = 'offline';
   }
 }
 
-// ── MODE SWITCHING ─────────────────────────────────────────────
-function setMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-
-  var labels = { analyze: 'ANALYZE', rewrite: 'REWRITE', summary: 'SUMMARY', chat: 'COACH' };
-  var btnTexts = { analyze: '⚗️ Analyze CV', rewrite: '✍️ Rewrite CV', summary: '📝 Write Summary', chat: '🧠 Load Context' };
-  document.getElementById('modeLabel').textContent = 'MODE: ' + labels[mode];
-  document.getElementById('btnText').textContent = btnTexts[mode];
-
-  document.getElementById('chatModeHint').style.display = mode === 'chat' ? 'block' : 'none';
-
-  showView('viewEmpty');
-  document.getElementById('copyBtn').style.display = 'none';
-  document.getElementById('pdfBtn').style.display = 'none';
+// NAV
+function show(id, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
 }
 
-// ── PIPELINE EXECUTOR ─────────────────────────────────────────
+function getCV() { return document.getElementById('cvText').value.trim(); }
+function getJD() { return document.getElementById('jdText').value.trim(); }
+function getMarket() { return document.getElementById('market').value; }
+
+// ── PIPELINE ──────────────────────────────────────────────────
 async function runPipeline() {
-  var cv = document.getElementById('cvInput').value.trim();
-  var jd = document.getElementById('jdInput').value.trim();
-
-  if (!cv) { toast('Paste your CV first'); return; }
-  if (!jd) { toast('Paste the Job Description'); return; }
-
-  setLoading(true);
-
+  var cv = getCV();
+  if (!cv) { toast('Pega tu CV primero'); return; }
+  setBusy('p', true, 'Ejecutando pipeline...');
   try {
-    var r = await fetch(API_BASE + '/api/v1/agent/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cv_text: cv,
-        job_description: jd,
-        mode: currentMode
-      })
+    var r = await fetch(API + '/api/v1/pipeline', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cv_text: cv, job_description: getJD(), target_market: getMarket(), mode: 'full_pipeline' })
     });
+    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+    var d = await r.json();
+    renderPipeline(d);
+    toast('Pipeline completado ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+  finally { setBusy('p', false, '⚗️ Ejecutar Pipeline Completo'); }
+}
 
-    if (!r.ok) {
-      var err = await r.json();
-      throw new Error(err.detail || 'API error');
-    }
-
-    var data = await r.json();
-    lastResult = data;
-    renderResult(data);
-
-  } catch(e) {
-    toast('Error: ' + e.message);
-    showView('viewEmpty');
-  } finally {
-    setLoading(false);
+function renderPipeline(d) {
+  var s = d.data.structured;
+  var box = document.getElementById('pipelineOutput');
+  if (!s || s.raw) {
+    box.innerHTML = '<div class="sh">OUTPUT</div><div class="output-block">' + esc(d.data.content) + '</div>' + actionBtns(d.data.content, 'pipeline');
+    return;
   }
-}
 
-function renderResult(data) {
-  var content = data.data.content;
-  var structured = data.data.structured;
+  var html = '';
 
-  if (currentMode === 'analyze' && structured) {
-    renderAnalyze(structured);
-  } else if (currentMode === 'chat') {
-    chatHistory.push({ role: 'assistant', content: content });
-    addChatBubble('ai', content);
-    showView('viewChat');
-    document.getElementById('viewChat').style.display = 'flex';
-  } else {
-    document.getElementById('textOutput').textContent = content;
-    showView('viewText');
-    document.getElementById('copyBtn').style.display = 'block';
-    if (currentMode === 'rewrite') {
-      document.getElementById('pdfBtn').style.display = 'block';
+  // SCORING
+  if (s.scoring) {
+    var sc = s.scoring;
+    var fit = sc.fit_score || 0;
+    var dec = (sc.decision || 'SKIP').toLowerCase();
+    var cls = dec === 'apply' ? 'apply' : dec === 'explore' ? 'explore' : 'skip';
+    html += '<div class="sh">SCORING KB6</div>';
+    html += '<div class="score-ring">';
+    html += '<div class="score-num ' + cls + '">' + fit + '</div>';
+    html += '<div class="score-info">';
+    html += '<div class="score-decision">' + esc(sc.decision || 'SKIP') + ' — ' + esc(sc.justificacion || '') + '</div>';
+    html += '<div class="score-bar-wrap"><div class="score-bar ' + cls + '" style="width:' + fit + '%"></div></div>';
+    html += '</div></div>';
+
+    if (sc.keyword_matches && sc.keyword_matches.length) {
+      html += '<div class="input-label" style="margin:8px 0 4px">Keywords match</div><div class="chips">';
+      sc.keyword_matches.forEach(k => { html += '<span class="chip match">' + esc(k) + '</span>'; });
+      html += '</div>';
     }
-    document.getElementById('canvasTitle').textContent =
-      currentMode === 'rewrite' ? 'Rewritten CV — ATS Optimized' :
-      currentMode === 'summary' ? 'Professional Summary' : 'Output';
+    if (sc.keyword_gaps && sc.keyword_gaps.length) {
+      html += '<div class="input-label" style="margin:8px 0 4px">Keywords faltantes</div><div class="chips">';
+      sc.keyword_gaps.forEach(k => { html += '<span class="chip gap">' + esc(k) + '</span>'; });
+      html += '</div>';
+    }
   }
-  toast('Pipeline complete · ' + (data.meta?.tokens_used || '?') + ' tokens');
+
+  // DIAGNÓSTICO
+  if (s.diagnóstico) {
+    var diag = s.diagnóstico;
+    html += '<div class="sh">DIAGNÓSTICO</div>';
+    html += '<div class="fl-card"><div class="fl-desc">' + esc(diag.perfil_actual || '') + '</div></div>';
+    if (diag.fortalezas && diag.fortalezas.length) {
+      html += '<div class="input-label" style="margin:8px 0 4px">✅ Fortalezas</div>';
+      diag.fortalezas.forEach(f => { html += '<div class="fl-card"><div class="fl-desc">' + esc(f) + '</div></div>'; });
+    }
+    if (diag.gaps_criticos && diag.gaps_criticos.length) {
+      html += '<div class="input-label" style="margin:8px 0 4px">❌ Gaps críticos</div>';
+      diag.gaps_criticos.forEach(g => { html += '<div class="fl-card" style="border-left:2px solid var(--acc)"><div class="fl-desc">' + esc(g) + '</div></div>'; });
+    }
+  }
+
+  // PATCHES
+  if (s.patches && s.patches.length) {
+    html += '<div class="sh">PATCHES KB3</div>';
+    s.patches.forEach(p => {
+      html += '<div class="patch">';
+      html += '<div class="patch-section">' + esc(p.seccion || '') + ' <span style="color:var(--text3);font-weight:400">' + esc(p.tipo || '') + '</span></div>';
+      if (p.original) html += '<div class="patch-original">' + esc(p.original) + '</div>';
+      html += '<div class="patch-new">' + esc(p.patch || '') + '</div>';
+      html += '</div>';
+    });
+  }
+
+  // NEXT ACTION
+  if (s.next_action) {
+    html += '<div class="sh">NEXT ACTION</div>';
+    html += '<div class="fl-card" style="border-left:2px solid var(--acc3)"><div class="fl-desc">' + esc(s.next_action) + '</div></div>';
+  }
+
+  box.innerHTML = html;
 }
 
-function renderAnalyze(d) {
-  // Score
-  var sb = d.ats_score_before || 0;
-  var sa = d.estimated_score_after || 0;
-  document.getElementById('scoreBefore').textContent = sb + '%';
-  document.getElementById('scoreBarBefore').style.width = sb + '%';
-  document.getElementById('scoreAfter').textContent = sa + '%';
-
-  // Keywords
-  var matches = d.keyword_matches || [];
-  var gaps = d.keyword_gaps || [];
-  document.getElementById('matchCount').textContent = matches.length;
-  document.getElementById('gapCount').textContent = gaps.length;
-
-  var matchChips = document.getElementById('matchChips');
-  matchChips.innerHTML = '';
-  matches.forEach(function(kw) {
-    var chip = document.createElement('span');
-    chip.className = 'kw-chip match';
-    chip.textContent = kw;
-    matchChips.appendChild(chip);
-  });
-
-  var gapChips = document.getElementById('gapChips');
-  gapChips.innerHTML = '';
-  gaps.forEach(function(kw) {
-    var chip = document.createElement('span');
-    chip.className = 'kw-chip gap';
-    chip.textContent = kw;
-    gapChips.appendChild(chip);
-  });
-
-  // Recommendations
-  var recs = d.top_recommendations || [];
-  var recList = document.getElementById('recList');
-  recList.innerHTML = '';
-  recs.forEach(function(rec, i) {
-    var el = document.createElement('div');
-    el.className = 'rec-item';
-    el.innerHTML = '<strong>' + (i+1) + '.</strong> ' + esc(rec);
-    recList.appendChild(el);
-  });
-
-  // Section analysis
-  var sa_data = d.section_analysis || {};
-  var secBox = document.getElementById('sectionAnalysis');
-  secBox.innerHTML = '';
-  var colors = { PASS: 'var(--acc2)', FAIL: 'var(--acc)', MISSING: 'var(--acc4)' };
-  Object.entries(sa_data).forEach(function([sec, status]) {
-    var el = document.createElement('div');
-    el.style.cssText = 'display:flex;justify-content:space-between;padding:8px 10px;background:var(--s2);border-radius:7px;margin-bottom:5px;font-size:12px';
-    el.innerHTML = '<span style="text-transform:capitalize;font-weight:600">' + sec + '</span><span style="color:' + (colors[status]||'var(--text2)') + ';font-weight:700;font-family:monospace">' + status + '</span>';
-    secBox.appendChild(el);
-  });
-
-  showView('viewAnalyze');
-  document.getElementById('canvasTitle').textContent = 'ATS Analysis Report';
-  document.getElementById('copyBtn').style.display = 'block';
+// ── CV OUTPUT ─────────────────────────────────────────────────
+async function runCV() {
+  var cv = getCV();
+  if (!cv) { toast('Carga tu CV en Pipeline primero'); return; }
+  var mode = document.getElementById('cvMode').value;
+  var labels = {cv_ats:'Generando CV ATS...', cv_recruiter:'Generando CV Recruiter...', linkedin:'Generando LinkedIn...'};
+  setBusy('cv', true, labels[mode] || 'Generando...');
+  try {
+    var r = await fetch(API + '/api/v1/pipeline', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cv_text: cv, job_description: getJD(), target_market: getMarket(), mode: mode })
+    });
+    if (!r.ok) throw new Error((await r.json()).detail || r.statusText);
+    var d = await r.json();
+    var content = d.data.content;
+    document.getElementById('cvOutput').innerHTML =
+      '<div class="sh">' + mode.toUpperCase().replace('_',' ') + '</div>' +
+      '<div class="output-block">' + esc(content) + '</div>' +
+      actionBtns(content, mode);
+    toast('Generado ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+  finally { setBusy('cv', false, '📄 Generar CV'); }
 }
 
-// ── CHAT ──────────────────────────────────────────────────────
+// ── COACH ─────────────────────────────────────────────────────
 async function sendChat() {
-  var msg = document.getElementById('chatInput').value.trim();
+  var msg = document.getElementById('chatInp').value.trim();
   if (!msg) return;
+  document.getElementById('chatInp').value = '';
 
-  var cv = document.getElementById('cvInput').value.trim();
-  var jd = document.getElementById('jdInput').value.trim();
-  if (!cv || !jd) { toast('Load CV + JD first'); return; }
-
-  document.getElementById('chatInput').value = '';
-  addChatBubble('user', msg);
-  chatHistory.push({ role: 'user', content: msg });
-
-  showView('viewChat');
-  document.getElementById('viewChat').style.display = 'flex';
-
-  // Typing indicator
-  var typingId = addChatBubble('ai', '...', true);
-
-  try {
-    var r = await fetch(API_BASE + '/api/v1/agent/query', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cv_text: cv,
-        job_description: jd,
-        mode: 'chat',
-        user_message: msg,
-        conversation_history: chatHistory.slice(-8)
-      })
-    });
-    var data = await r.json();
-    var reply = data.data?.content || 'No response';
-    chatHistory.push({ role: 'assistant', content: reply });
-    removeTyping(typingId);
-    addChatBubble('ai', reply);
-  } catch(e) {
-    removeTyping(typingId);
-    addChatBubble('ai', 'Error: ' + e.message);
-  }
-}
-
-function addChatBubble(role, text, isTyping) {
   var area = document.getElementById('chatArea');
-  // Clear empty state
-  var empty = area.querySelector('.empty-state');
+  var empty = area.querySelector('.empty');
   if (empty) empty.remove();
 
-  var id = 'bubble-' + Date.now();
+  addBubble('user', msg);
+  chatHistory.push({role:'user', content:msg});
+
+  var tid = addBubble('ai', '...', true);
+
+  try {
+    var r = await fetch(API + '/api/v1/coach', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cv_text: getCV(), job_description: getJD(), message: msg, history: chatHistory.slice(-8) })
+    });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    var d = await r.json();
+    var reply = d.reply;
+    chatHistory.push({role:'assistant', content:reply});
+    document.getElementById(tid).querySelector('.body').textContent = reply;
+  } catch(e) {
+    document.getElementById(tid).querySelector('.body').textContent = 'Error: ' + e.message;
+  }
+}
+
+function addBubble(role, text, isLoading) {
+  var area = document.getElementById('chatArea');
+  var id = 'b' + Date.now();
   var div = document.createElement('div');
-  div.className = 'chat-bubble ' + role;
+  div.className = 'bubble ' + role;
   div.id = id;
   if (role === 'ai') {
-    div.innerHTML = '<span class="tag">REBRAND.OS</span>' + (isTyping ? '<span class="spinner" style="width:12px;height:12px;border-width:2px;display:inline-block"></span>' : esc(text).replace(/\n/g,'<br>'));
+    div.innerHTML = '<span class="tag">REBRAND.OS</span><span class="body">' + (isLoading ? '<span class="spin"></span>' : esc(text)) + '</span>';
   } else {
     div.textContent = text;
   }
@@ -591,96 +476,155 @@ function addChatBubble(role, text, isTyping) {
   return id;
 }
 
-function removeTyping(id) {
-  var el = document.getElementById(id);
-  if (el) el.remove();
-}
-
-// ── PDF EXPORT ────────────────────────────────────────────────
-async function exportPDF() {
-  if (!lastResult) { toast('Run analysis first'); return; }
-  var content = lastResult.data.content;
-  if (!content) { toast('No content to export'); return; }
-
-  toast('Generating PDF...');
+// ── FREELANCE ─────────────────────────────────────────────────
+async function runFreelance() {
+  var cv = getCV();
+  if (!cv) { toast('Carga tu CV en Pipeline primero'); return; }
+  setBusy('fl', true, 'Analizando mercado freelance...');
   try {
-    var r = await fetch(API_BASE + '/api/v1/export/pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: content,
-        title: 'Optimized CV',
-        candidate_name: extractName(content)
-      })
+    var r = await fetch(API + '/api/v1/pipeline', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cv_text: cv, job_description: '', target_market: getMarket(), mode: 'freelance' })
     });
-    var blob = await r.blob();
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'cv_optimized_' + Date.now() + '.pdf';
-    a.click();
-    toast('PDF downloaded!');
-  } catch(e) {
-    toast('PDF error: ' + e.message);
-  }
+    if (!r.ok) throw new Error((await r.json()).detail);
+    var d = await r.json();
+    renderFreelance(d);
+    toast('Análisis completado ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+  finally { setBusy('fl', false, '🌐 Analizar Oportunidades Freelance'); }
 }
 
-function extractName(text) {
-  var firstLine = text.trim().split('\n')[0];
-  return firstLine.substring(0, 30).replace(/[^a-zA-Z\s]/g, '').trim() || 'candidate';
+function renderFreelance(d) {
+  var s = d.data.structured;
+  var box = document.getElementById('flOutput');
+  if (!s || s.raw) {
+    box.innerHTML = '<div class="output-block">' + esc(d.data.content) + '</div>';
+    return;
+  }
+  var html = '';
+  if (s.plataformas && s.plataformas.length) {
+    html += '<div class="sh">PLATAFORMAS RECOMENDADAS</div>';
+    s.plataformas.forEach(p => {
+      var fit = (p.fit || 'LOW').toLowerCase();
+      html += '<div class="fl-card"><div class="fl-title">' + esc(p.nombre || '') + '<span class="fl-fit ' + fit + '">' + esc(p.fit || '') + '</span></div>';
+      html += '<div class="fl-desc">' + esc(p.razon || '') + '</div></div>';
+    });
+  }
+  if (s.servicios && s.servicios.length) {
+    html += '<div class="sh">SERVICIOS OFRECIBLES</div>';
+    s.servicios.forEach(sv => {
+      html += '<div class="fl-card"><div class="fl-title">' + esc(sv.servicio || '') + '<span class="chip neutral">' + esc(sv.base || '') + '</span></div>';
+      html += '<div class="fl-desc">' + esc(sv.precio_estimado || '') + '</div></div>';
+    });
+  }
+  if (s.propuesta_valor) {
+    html += '<div class="sh">PROPUESTA DE VALOR</div>';
+    html += '<div class="fl-card" style="border-left:2px solid var(--acc3)"><div class="fl-desc">' + esc(s.propuesta_valor) + '</div></div>';
+  }
+  if (s.red_flags && s.red_flags.length) {
+    html += '<div class="sh">⚠️ RED FLAGS SCAM</div>';
+    s.red_flags.forEach(f => { html += '<div class="fl-card" style="border-left:2px solid var(--acc)"><div class="fl-desc">' + esc(f) + '</div></div>'; });
+  }
+  if (s.propuesta_template) {
+    html += '<div class="sh">TEMPLATE PROPUESTA</div>';
+    html += '<div class="output-block">' + esc(s.propuesta_template) + '</div>' + actionBtns(s.propuesta_template, 'propuesta');
+  }
+  if (s.gaps_freelance && s.gaps_freelance.length) {
+    html += '<div class="sh">GAPS A CERRAR</div>';
+    s.gaps_freelance.forEach(g => { html += '<div class="fl-card" style="border-left:2px solid var(--acc4)"><div class="fl-desc">' + esc(g) + '</div></div>'; });
+  }
+  box.innerHTML = html;
+}
+
+// ── SCORE ─────────────────────────────────────────────────────
+async function runScore() {
+  var cv = getCV();
+  var jd = getJD();
+  if (!cv) { toast('Carga tu CV primero'); return; }
+  if (!jd) { toast('Agrega el JD para calcular fit score'); return; }
+  setBusy('score', true, 'Calculando...');
+  try {
+    var r = await fetch(API + '/api/v1/pipeline', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ cv_text: cv, job_description: jd, mode: 'score' })
+    });
+    if (!r.ok) throw new Error((await r.json()).detail);
+    var d = await r.json();
+    var s = d.data.structured;
+    var box = document.getElementById('scoreOutput');
+    if (s && !s.raw) {
+      var fit = s.fit_score || 0;
+      var dec = (s.decision || 'SKIP').toLowerCase();
+      var cls = dec === 'apply' ? 'apply' : dec === 'explore' ? 'explore' : 'skip';
+      var html = '<div class="score-ring" style="margin-top:12px">';
+      html += '<div class="score-num ' + cls + '">' + fit + '</div>';
+      html += '<div class="score-info"><div class="score-decision">' + esc(s.decision || '') + '</div>';
+      html += '<div class="score-bar-wrap"><div class="score-bar ' + cls + '" style="width:' + fit + '%"></div></div>';
+      html += '<div style="font-size:11px;color:var(--text2);margin-top:4px">' + esc(s.razon || s.decision || '') + '</div>';
+      html += '</div></div>';
+      if (s.keyword_matches && s.keyword_matches.length) {
+        html += '<div class="chips" style="margin-top:8px">' + s.keyword_matches.map(k => '<span class="chip match">' + esc(k) + '</span>').join('') + '</div>';
+      }
+      if (s.keyword_gaps && s.keyword_gaps.length) {
+        html += '<div class="chips" style="margin-top:6px">' + s.keyword_gaps.map(k => '<span class="chip gap">' + esc(k) + '</span>').join('') + '</div>';
+      }
+      box.innerHTML = html;
+    } else {
+      box.innerHTML = '<div class="output-block">' + esc(d.data.content) + '</div>';
+    }
+    toast('Score calculado ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+  finally { setBusy('score', false, '🎯 Calcular Fit Score'); }
 }
 
 // ── UTILS ─────────────────────────────────────────────────────
-function copyOutput() {
-  var text = '';
-  if (currentMode === 'analyze') {
-    text = JSON.stringify(lastResult?.data?.structured || {}, null, 2);
-  } else {
-    text = document.getElementById('textOutput').textContent;
-  }
-  navigator.clipboard.writeText(text).then(() => toast('Copied!')).catch(() => toast('Copy failed'));
+function actionBtns(content, name) {
+  var escaped = JSON.stringify(content);
+  return '<div class="output-actions">' +
+    '<button class="act-btn act-copy" onclick="copyText(' + escaped + ')">📋 Copiar</button>' +
+    '<button class="act-btn act-dl" onclick="downloadTxt(' + escaped + ',\'' + name + '\')">⬇️ Descargar TXT</button>' +
+    '</div>';
 }
 
-function clearAll() {
-  document.getElementById('cvInput').value = '';
-  document.getElementById('jdInput').value = '';
-  showView('viewEmpty');
-  document.getElementById('copyBtn').style.display = 'none';
-  document.getElementById('pdfBtn').style.display = 'none';
-  chatHistory = [];
-  lastResult = null;
-}
-
-function showView(id) {
-  ['viewAnalyze','viewText','viewChat','viewEmpty'].forEach(function(v) {
-    var el = document.getElementById(v);
-    if (el) el.style.display = 'none';
-  });
-  var target = document.getElementById(id);
-  if (target) target.style.display = id === 'viewChat' ? 'flex' : (id === 'viewAnalyze' || id === 'viewText' ? 'block' : 'flex');
-}
-
-function setLoading(on) {
-  var btn = document.getElementById('mainBtn');
-  var spinner = document.getElementById('btnSpinner');
-  var txt = document.getElementById('btnText');
+function setBusy(prefix, on, label) {
+  var btn = document.getElementById(prefix + 'Btn');
+  var spin = document.getElementById(prefix + 'Spin');
+  var txt = document.getElementById(prefix + 'Txt');
   btn.disabled = on;
-  spinner.style.display = on ? 'block' : 'none';
-  if (!on) txt.textContent = {analyze:'⚗️ Analyze CV',rewrite:'✍️ Rewrite CV',summary:'📝 Write Summary',chat:'🧠 Load Context'}[currentMode];
-  else txt.textContent = 'Running pipeline...';
+  spin.style.display = on ? 'inline-block' : 'none';
+  if (txt) txt.textContent = label;
 }
 
-function esc(str) {
-  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => toast('Copiado ✓')).catch(() => toast('Error copiando'));
 }
 
-var toastTimer;
+async function downloadTxt(content, name) {
+  try {
+    var r = await fetch(API + '/api/v1/export', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ content: content, name: name })
+    });
+    var blob = await r.blob();
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + '_' + Date.now() + '.txt';
+    a.click();
+    toast('Descargado ✓');
+  } catch(e) { toast('Error: ' + e.message); }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+var toastT;
 function toast(msg) {
   var el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2500);
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), 2500);
 }
 </script>
 </body>

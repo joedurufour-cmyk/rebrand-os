@@ -1,24 +1,20 @@
 """
-REBRAND.OS — Backend API Gateway
-Pipeline: PERA M1→M7 | FastAPI | OpenAI | WeasyPrint
+REBRAND.OS — Motor de Rebranding Determinístico
+Pipeline: INGESTA → ANÁLISIS → GAP DETECTION → EVIDENCIA → SCORING → DECISION → OUTPUT → TRACKING
+P_entailment ≥ 0.90 | ¬hallucinate | KB1→KB7 architecture
 """
-import os
-import json
-import re
+import os, json, re
 from datetime import datetime
-from typing import Optional
-
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
-import pathlib
+from typing import Optional, List
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 import openai
+import pathlib
 
-app = FastAPI(title="REBRAND.OS API", version="1.0.0")
+app = FastAPI(title="REBRAND.OS", version="2.0.0")
 
-# ── CORS ──────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,318 +23,318 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── KIMI K2.6 CLIENT (OpenAI-compatible) ─────────────────────
-KIMI_BASE_URL = "https://api.moonshot.ai/v1"
-KIMI_MODEL = "moonshot-v1-128k"
-
-def get_openai_client():
-    api_key = os.getenv("KIMI_API_KEY")
-    if not api_key:
-        raise HTTPException(status_code=500, detail="KIMI_API_KEY not configured")
-    return openai.OpenAI(api_key=api_key, base_url=KIMI_BASE_URL)
-
-# ── PERA PROMPT INJECTOR (M2:Encoder + M3:Compressor) ─────────
-SYSTEM_PROMPT = """You are REBRAND.OS — a deterministic ATS optimization engine.
-
-CORE CONSTRAINTS (INVARIANTS):
-- P_entailment ≥ 0.90: EVERY claim in output must be anchored to user-provided CV data
-- ¬ hallucinate: NEVER invent roles, companies, dates, skills, or metrics not in input
-- ¬ fabricate: If user CV says "3 years", output must say "3 years" — no upgrades
-- cos(V_P, V_JD) MAXIMIZE: Maximize semantic alignment between CV and Job Description
-- ATS_compliance: Use standard section headers, keyword-dense language, action verbs
-- FORMAT: Return structured JSON only when instructed. No markdown in JSON strings.
-
-PERA PIPELINE EXECUTION:
-M1 Parse → extract CV entities + JD requirements
-M2 Encode → semantic mapping CV↔JD
-M3 Compress → identify gaps + opportunities
-M4 Structure → ATS-optimized output schema
-M5 Validate → entailment check (reject hallucinated claims)
-M6 Adapt → format for output target (text/PDF)
-M7 Execute → deliver final artifact
-
-FACTUAL ANCHOR RULE:
-∀ output claim → ∃ anchor in user CV.
-If anchor missing → mark as [SUGGESTED: verify with user] NOT fabricated.
-"""
-
-def build_rebranding_prompt(cv_text: str, job_description: str, mode: str = "full") -> str:
-    """M1:Parser + M2:Encoder — build dense instruction"""
-    if mode == "analyze":
-        return f"""TASK: ATS_GAP_ANALYSIS
-INPUT_CV:
-{cv_text}
-
-TARGET_JD:
-{job_description}
-
-OUTPUT_SCHEMA (JSON):
-{{
-  "ats_score_before": <0-100>,
-  "keyword_matches": ["kw1", "kw2"],
-  "keyword_gaps": ["missing1", "missing2"],
-  "section_analysis": {{
-    "summary": "PASS|FAIL|MISSING",
-    "experience": "PASS|FAIL|MISSING",
-    "skills": "PASS|FAIL|MISSING",
-    "education": "PASS|FAIL|MISSING"
-  }},
-  "top_recommendations": ["rec1", "rec2", "rec3"],
-  "estimated_score_after": <0-100>
-}}
-Return ONLY valid JSON. No preamble."""
-
-    elif mode == "rewrite":
-        return f"""TASK: CV_REWRITE_ATS_OPTIMIZED
-CONSTRAINT: P_entailment≥0.90 — anchor all claims to CV below
-CONSTRAINT: ¬fabricate — no invented experience
-
-INPUT_CV:
-{cv_text}
-
-TARGET_JD:
-{job_description}
-
-OUTPUT: Full rewritten CV optimized for ATS. Use:
-- Standard headers: PROFESSIONAL SUMMARY | EXPERIENCE | SKILLS | EDUCATION
-- Action verbs + quantification where CV data supports it
-- Keywords from JD naturally integrated
-- Plain text, no tables, no columns (ATS-safe)
-- Mark any suggested additions as [SUGGESTED]"""
-
-    elif mode == "summary":
-        return f"""TASK: PROFESSIONAL_SUMMARY_GENERATION
-CONSTRAINT: P_entailment≥0.90
-
-INPUT_CV:
-{cv_text}
-
-TARGET_JD:
-{job_description}
-
-OUTPUT: 3-4 sentence ATS-optimized professional summary.
-Integrate top 3-5 keywords from JD. Anchor all claims to CV."""
-
-    elif mode == "chat":
-        return f"""CONTEXT: User is optimizing their CV for a specific role.
-CV ON FILE:
-{cv_text}
-
-TARGET ROLE:
-{job_description}
-
-Respond as REBRAND.OS coach. Be specific, actionable. ¬fabricate."""
-
-    return f"""TASK: FULL_REBRAND
-INPUT_CV: {cv_text}
-TARGET_JD: {job_description}
-Execute full PERA pipeline. Return optimized CV."""
-
-
-# ── SCHEMAS ───────────────────────────────────────────────────
-class AgentQuery(BaseModel):
-    cv_text: str
-    job_description: str
-    mode: str = "analyze"  # analyze | rewrite | summary | chat
-    user_message: Optional[str] = None
-    conversation_history: Optional[list] = []
-
-class ExportRequest(BaseModel):
-    content: str
-    title: str = "Optimized CV"
-    candidate_name: str = "Candidate"
-
-# ── SERVE FRONTEND ───────────────────────────────────────────
-FRONTEND_PATH = pathlib.Path(__file__).parent.parent / "frontend" / "index.html"  # /app/frontend/index.html in Docker
+FRONTEND_PATH = pathlib.Path(__file__).parent.parent / "frontend" / "index.html"
 
 @app.get("/")
 async def serve_frontend():
     if FRONTEND_PATH.exists():
         return FileResponse(str(FRONTEND_PATH), media_type="text/html")
-    return {"message": "REBRAND.OS API", "docs": "/docs", "health": "/api/health"}
+    return {"service": "REBRAND.OS API v2", "health": "/api/health"}
 
-# ── HEALTH ────────────────────────────────────────────────────
-@app.get("/health")
+KIMI_BASE_URL = "https://api.moonshot.ai/v1"
+KIMI_MODEL = "moonshot-v1-128k"
+
+def get_client():
+    api_key = os.getenv("KIMI_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="KIMI_API_KEY not configured")
+    return openai.OpenAI(api_key=api_key, base_url=KIMI_BASE_URL)
+
 @app.get("/api/health")
+@app.get("/health")
 async def health():
     return {
-        "status": "ok",
-        "service": "REBRAND.OS",
-        "version": "1.0.0",
+        "status": "ok", "service": "REBRAND.OS", "version": "2.0.0",
         "kimi_configured": bool(os.getenv("KIMI_API_KEY")),
-        "pipeline": "PERA-v1 M1→M7"
+        "pipeline": "KB1→KB7 | INGESTA→SCORING→OUTPUT"
     }
 
-# ── MAIN AGENT ENDPOINT ───────────────────────────────────────
-@app.post("/api/v1/agent/query")
-async def agent_query(query: AgentQuery):
-    """
-    PERA Pipeline Executor
-    M1:Parse → M2:Encode → M3:Compress → M4:Structure → M5:Validate → M6:Adapt → M7:Execute
-    """
-    if not query.cv_text.strip():
-        raise HTTPException(status_code=400, detail="cv_text required")
-    if not query.job_description.strip():
-        raise HTTPException(status_code=400, detail="job_description required")
+# ── SCHEMAS ───────────────────────────────────────────────────
+class ProfileInput(BaseModel):
+    cv_text: str
+    job_description: Optional[str] = ""
+    target_role: Optional[str] = ""
+    target_market: Optional[str] = "remote"
+    mode: str = "full_pipeline"  # full_pipeline | score | cv_ats | cv_recruiter | linkedin | freelance | web_research | coach
 
-    client = get_openai_client()
+class ChatMessage(BaseModel):
+    cv_text: str
+    job_description: Optional[str] = ""
+    message: str
+    history: Optional[List[dict]] = []
 
-    # M1→M3: Build compressed prompt
-    task_prompt = build_rebranding_prompt(
-        query.cv_text,
-        query.job_description,
-        query.mode
-    )
+# ── KB SYSTEM PROMPTS ─────────────────────────────────────────
+SYSTEM_BASE = """Eres REBRAND.OS — Motor de Rebranding Profesional Determinístico.
 
-    # M4: Build messages array
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+PRINCIPIOS ABSOLUTOS (NO NEGOCIABLES):
+1. NUNCA inventar experiencia, cargos, empresas, métricas ni certificaciones
+2. Si métrica no validada → marcar: ESTIMATED | RANGE | UNKNOWN
+3. Separar SIEMPRE: Hecho real | Inferencia | Patch narrativo | Claim no validado
+4. P_entailment ≥ 0.90: toda afirmación anclada al CV original
+5. Optimizar para: ATS parser + recruiter scan 6-8s + entrevista
+6. Mantener coherencia: CV = LinkedIn = Portfolio = Entrevista
 
-    # Inject conversation history (for chat mode)
-    if query.conversation_history:
-        for turn in query.conversation_history[-6:]:  # last 6 turns max
-            if turn.get("role") in ["user", "assistant"]:
-                messages.append({"role": turn["role"], "content": turn["content"]})
+ARQUITECTURA KB:
+KB1 → ATS rules + mercado actual
+KB2 → Posicionamiento narrativo
+KB3 → Gap detection + patch narrativo
+KB4 → Evidencia técnica validada
+KB5 → Freelance + detección scams
+KB6 → Scoring + decisión aplicar/no
+KB7 → Output generation (NO genera narrativa nueva)
 
-    # Add current task
-    if query.mode == "chat" and query.user_message:
-        messages.append({"role": "user", "content": task_prompt + f"\n\nUSER: {query.user_message}"})
-    else:
-        messages.append({"role": "user", "content": task_prompt})
+CONTROL DE GENERACIÓN (CRÍTICO):
+IF score < 0.50 → NO generar CV completo → sugerir reposicionamiento
+IF 0.50-0.74 → versión EXPLORE (con patches marcados)
+IF >= 0.75 → versión APPLY optimizada
 
-    # M7: Execute
+ERRORES PROHIBIDOS:
+- Inventar experiencia
+- Inflar métricas sin base
+- Generar output sin validación mínima
+- Ignorar scoring
+- Duplicar narrativa sin control"""
+
+def build_prompt(mode: str, cv: str, jd: str = "", role: str = "", market: str = "remote") -> str:
+
+    if mode == "full_pipeline":
+        return f"""EJECUTAR PIPELINE COMPLETO:
+
+CV DEL USUARIO:
+{cv}
+
+JOB DESCRIPTION TARGET:
+{jd if jd else "No proporcionado"}
+
+ROL TARGET: {role if role else "Inferir del CV"}
+MERCADO: {market}
+
+EJECUTAR EN ORDEN:
+1. INGESTA: Extraer entidades del CV (roles, empresas, fechas, skills, métricas)
+2. ANÁLISIS KB1+KB2: ATS score actual + posicionamiento
+3. GAP DETECTION KB3: Brechas vs JD
+4. EVIDENCIA KB4: Validar claims
+5. SCORING KB6: Calcular fit score 0-100
+
+RESPONDER EN JSON EXACTO:
+{{
+  "state": "ANÁLISIS COMPLETADO",
+  "diagnóstico": {{
+    "perfil_actual": "descripción del perfil real extraído",
+    "fortalezas": ["fortaleza1 real", "fortaleza2 real"],
+    "gaps_criticos": ["gap1 vs JD", "gap2 vs JD"],
+    "ats_score_actual": 0,
+    "ats_score_proyectado": 0
+  }},
+  "scoring": {{
+    "fit_score": 0,
+    "decision": "APPLY | EXPLORE | SKIP",
+    "justificacion": "razón basada en CV real",
+    "keyword_matches": ["kw1", "kw2"],
+    "keyword_gaps": ["gap1", "gap2"]
+  }},
+  "patches": [
+    {{"seccion": "SUMMARY", "original": "texto original", "patch": "versión optimizada", "tipo": "Hecho real | Inferencia | Patch narrativo"}},
+    {{"seccion": "EXPERIENCE", "original": "texto original", "patch": "versión ATS", "tipo": "Hecho real"}}
+  ],
+  "next_action": "acción recomendada específica"
+}}"""
+
+    elif mode == "cv_ats":
+        return f"""GENERAR CV VERSIÓN ATS:
+
+CV ORIGINAL:
+{cv}
+
+JD TARGET:
+{jd if jd else "Optimizar para rol: " + role}
+
+REGLAS ATS:
+- Headers estándar: PROFESSIONAL SUMMARY | EXPERIENCE | SKILLS | EDUCATION
+- Sin tablas, columnas, headers/footers, gráficos
+- Keywords del JD integradas naturalmente
+- Action verbs + cuantificación SOLO donde el CV original lo soporte
+- Marcar con [ESTIMATED] métricas inferidas
+- Marcar con [SUGGESTED] skills no confirmados en CV
+
+FORMATO: Texto plano ATS-safe, máximo 2 páginas equivalente.
+RESPONDER: Solo el CV completo sin explicaciones adicionales."""
+
+    elif mode == "cv_recruiter":
+        return f"""GENERAR CV VERSIÓN RECRUITER (VISUAL):
+
+CV ORIGINAL:
+{cv}
+
+JD TARGET:
+{jd if jd else "Optimizar para rol: " + role}
+
+REGLAS RECRUITER (6-8 segundos de scan):
+- Summary de impacto en 3 líneas MAX
+- Bullets de logros con formato: Verbo + Qué + Resultado cuantificado (si existe en CV)
+- Skills relevantes al JD primero
+- Diseño mental: jerarquía visual clara
+- Primera sección debe capturar atención inmediata
+
+RESPONDER: CV completo optimizado para recruiter humano."""
+
+    elif mode == "linkedin":
+        return f"""OPTIMIZAR PERFIL LINKEDIN:
+
+CV ORIGINAL:
+{cv}
+
+ROL TARGET: {role if role else "Inferir del CV"}
+MERCADO: {market}
+
+GENERAR:
+1. HEADLINE (120 chars max): keyword-rich, valor claro
+2. ABOUT (2000 chars max): narrativa en primera persona, hook en primera línea
+3. EXPERIENCE: bullets de cada rol optimizados para LinkedIn search
+4. SKILLS TOP 10: ordenadas por relevancia ATS + mercado actual
+5. KEYWORDS ADICIONALES: para aparecer en búsquedas de recruiters
+
+Coherencia total con CV. ¬inventar."""
+
+    elif mode == "freelance":
+        return f"""ANÁLISIS FREELANCE + DETECCIÓN DE OPORTUNIDADES:
+
+CV ORIGINAL:
+{cv}
+
+MERCADO TARGET: {market}
+
+ANALIZAR Y RESPONDER:
+1. PLATAFORMAS RECOMENDADAS: Upwork/Fiverr/Toptal/LinkedIn/otras según skills reales del CV
+2. SERVICIOS OFRECIBLES: basados estrictamente en experiencia confirmada en CV
+3. RANGO DE PRECIOS: estimado por mercado actual (marcar como ESTIMATED)
+4. PROPUESTA DE VALOR: diferenciador único basado en CV real
+5. RED FLAGS SCAM: patrones a evitar en plataformas
+6. PROPUESTA TIPO: template de propuesta para cliente basado en skills reales
+7. GAPS PARA FREELANCE: qué falta para competir en mercado actual
+
+JSON RESPONSE:
+{{
+  "plataformas": [{{"nombre": "", "fit": "HIGH|MED|LOW", "razon": ""}}],
+  "servicios": [{{"servicio": "", "base": "Hecho real|Inferencia", "precio_estimado": ""}}],
+  "propuesta_valor": "",
+  "red_flags": ["flag1", "flag2"],
+  "propuesta_template": "",
+  "gaps_freelance": ["gap1", "gap2"]
+}}"""
+
+    elif mode == "score":
+        return f"""SCORING RÁPIDO CV vs JD:
+
+CV:
+{cv}
+
+JD:
+{jd}
+
+CALCULAR:
+- fit_score: 0-100
+- keyword_matches: lista
+- keyword_gaps: lista críticos
+- decision: APPLY (>=75) | EXPLORE (50-74) | SKIP (<50)
+- razon: 2 líneas máximo
+
+JSON SOLO."""
+
+    return f"Analiza este CV y JD. CV: {cv[:500]} JD: {jd[:300]}"
+
+
+# ── MAIN PIPELINE ENDPOINT ────────────────────────────────────
+@app.post("/api/v1/pipeline")
+async def run_pipeline(data: ProfileInput):
+    if not data.cv_text.strip():
+        raise HTTPException(status_code=400, detail="cv_text requerido")
+
+    client = get_client()
+    prompt = build_prompt(data.mode, data.cv_text, data.job_description, data.target_role, data.target_market)
+
+    try:
+        response = client.chat.completions.create(
+            model=KIMI_MODEL,
+            messages=[
+                {"role": "system", "content": SYSTEM_BASE},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=6000,
+        )
+        raw = response.choices[0].message.content
+
+        # Parse JSON if expected
+        parsed = None
+        if data.mode in ["full_pipeline", "freelance", "score"]:
+            try:
+                clean = re.sub(r'```(?:json)?\n?', '', raw).strip().rstrip('`')
+                parsed = json.loads(clean)
+            except:
+                parsed = {"raw": raw}
+
+        return {
+            "status": "PASS",
+            "mode": data.mode,
+            "data": {"content": raw, "structured": parsed},
+            "meta": {"model": KIMI_MODEL, "tokens": response.usage.total_tokens},
+            "transducers": [
+                {"action": "download", "label": "Descargar TXT", "endpoint": "/api/v1/export"},
+                {"action": "copy", "label": "Copiar"}
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Error LLM: {str(e)}")
+
+
+# ── COACH CHAT ────────────────────────────────────────────────
+@app.post("/api/v1/coach")
+async def coach(data: ChatMessage):
+    if not data.message.strip():
+        raise HTTPException(status_code=400, detail="message requerido")
+
+    client = get_client()
+    messages = [{"role": "system", "content": SYSTEM_BASE}]
+
+    if data.cv_text:
+        messages.append({"role": "user", "content": f"CV en contexto:\n{data.cv_text}"})
+        messages.append({"role": "assistant", "content": "CV cargado. ¿Cómo puedo ayudarte?"})
+
+    if data.job_description:
+        messages.append({"role": "user", "content": f"JD target:\n{data.job_description}"})
+        messages.append({"role": "assistant", "content": "JD cargado."})
+
+    for h in (data.history or [])[-6:]:
+        if h.get("role") in ["user", "assistant"]:
+            messages.append(h)
+
+    messages.append({"role": "user", "content": data.message})
+
     try:
         response = client.chat.completions.create(
             model=KIMI_MODEL,
             messages=messages,
-            temperature=0.6,
-            max_tokens=4000
+            temperature=0.4,
+            max_tokens=3000,
         )
-        raw_content = response.choices[0].message.content
-
-        # M5: Validate — parse JSON if expected
-        parsed_data = None
-        if query.mode == "analyze":
-            try:
-                # Strip markdown fences if present
-                clean = re.sub(r'```(?:json)?\n?', '', raw_content).strip().rstrip('`')
-                parsed_data = json.loads(clean)
-            except json.JSONDecodeError:
-                parsed_data = {"raw": raw_content}
-
-        # M6: Structure response per PERA schema
-        result = {
+        return {
             "status": "PASS",
-            "mode": query.mode,
-            "timestamp": datetime.utcnow().isoformat(),
-            "data": {
-                "content": raw_content,
-                "structured": parsed_data,
-            },
-            "transducers": [
-                {
-                    "action": "download",
-                    "format": "pdf",
-                    "endpoint": "/api/v1/export/pdf",
-                    "label": "Export ATS-Safe PDF"
-                },
-                {
-                    "action": "copy",
-                    "format": "text",
-                    "label": "Copy to clipboard"
-                }
-            ],
-            "meta": {
-                "model": KIMI_MODEL,
-                "tokens_used": response.usage.total_tokens,
-                "pipeline": "PERA-v1"
-            }
+            "reply": response.choices[0].message.content,
+            "tokens": response.usage.total_tokens
         }
-        return result
-
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"LLM error: {str(e)}")
+        raise HTTPException(status_code=502, detail=f"Error: {str(e)}")
 
 
-# ── EXPORT (M6:Adapter — ATS-safe plain text) ───────────────
-@app.post("/api/v1/export/pdf")
-async def export_pdf(req: ExportRequest):
-    """Plain text export — ATS safe, no OS dependencies"""
-    try:
-        txt_bytes = req.content.encode("utf-8")
-        filename = f"cv_{req.candidate_name.lower().replace(' ', '_')}_{datetime.utcnow().strftime('%Y%m%d')}.txt"
-        return StreamingResponse(
-            iter([txt_bytes]),
-            media_type="text/plain",
-            headers={"Content-Disposition": f'attachment; filename="{filename}"'}
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
-
-
-def _text_to_html(text: str) -> str:
-    """Convert plain text CV to ATS-safe HTML structure"""
-    lines = text.strip().split('\n')
-    html_parts = []
-    in_list = False
-
-    for line in lines:
-        line = line.strip()
-        if not line:
-            if in_list:
-                html_parts.append('</ul>')
-                in_list = False
-            continue
-
-        # Detect section headers (ALL CAPS or common patterns)
-        if re.match(r'^(PROFESSIONAL SUMMARY|EXPERIENCE|SKILLS|EDUCATION|CERTIFICATIONS|PROJECTS|SUMMARY|WORK EXPERIENCE|EMPLOYMENT)', line, re.I):
-            if in_list:
-                html_parts.append('</ul>')
-                in_list = False
-            html_parts.append(f'<h2>{line}</h2>')
-
-        # Bullet points
-        elif line.startswith(('•', '-', '*', '·')):
-            if not in_list:
-                html_parts.append('<ul>')
-                in_list = True
-            html_parts.append(f'<li>{line[1:].strip()}</li>')
-
-        # Job title / company lines (has | or similar separator)
-        elif '|' in line or re.match(r'.+\d{4}', line):
-            if in_list:
-                html_parts.append('</ul>')
-                in_list = False
-            html_parts.append(f'<h3>{line}</h3>')
-
-        else:
-            if in_list:
-                html_parts.append('</ul>')
-                in_list = False
-            html_parts.append(f'<p>{line}</p>')
-
-    if in_list:
-        html_parts.append('</ul>')
-
-    return '\n'.join(html_parts)
-
-
-# ── KEYWORD EXTRACTOR (utility) ───────────────────────────────
-@app.post("/api/v1/extract/keywords")
-async def extract_keywords(body: dict):
-    """Fast keyword extraction from JD — no LLM needed"""
-    jd = body.get("text", "")
-    if not jd:
-        raise HTTPException(status_code=400, detail="text required")
-
-    # Common ATS keyword patterns
-    tech_pattern = r'\b(Python|Java|SQL|AWS|Azure|GCP|React|Node|TypeScript|Docker|Kubernetes|ML|AI|API|REST|GraphQL|Git|Agile|Scrum|CI/CD|DevOps|MBA|PMP|CPA|CFA|Salesforce|SAP|Excel|PowerBI|Tableau)\b'
-    soft_pattern = r'\b(leadership|communication|collaboration|management|strategy|analysis|problem.solving|cross.functional|stakeholder|mentoring)\b'
-
-    tech_kw = list(set(re.findall(tech_pattern, jd, re.I)))
-    soft_kw = list(set(re.findall(soft_pattern, jd, re.I)))
-
-    return {
-        "technical_keywords": tech_kw[:20],
-        "soft_skills": soft_kw[:10],
-        "total": len(tech_kw) + len(soft_kw)
-    }
+# ── EXPORT ────────────────────────────────────────────────────
+@app.post("/api/v1/export")
+async def export_txt(body: dict):
+    content = body.get("content", "")
+    name = body.get("name", "cv_rebrand_os")
+    txt = content.encode("utf-8")
+    return StreamingResponse(
+        iter([txt]),
+        media_type="text/plain",
+        headers={"Content-Disposition": f'attachment; filename="{name}_{datetime.utcnow().strftime("%Y%m%d")}.txt"'}
+    )
